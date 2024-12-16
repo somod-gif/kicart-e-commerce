@@ -1,4 +1,4 @@
-import { localFont } from "next/font/local";
+import localFont from "next/font/local";
 import Header from "./components/Header";
 import "../app/styles/globals.css";
 import Footer from "./components/Footer";
