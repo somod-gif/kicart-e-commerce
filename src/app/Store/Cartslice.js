@@ -1,40 +1,38 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  items: [], // Store cart items here
+  items: [], // Wrap the cart items in 'items' field
 };
 
 const cartSlice = createSlice({
-  name: "cart",
+  name: 'cart',
   initialState,
   reducers: {
     addToCart: (state, action) => {
       const product = action.payload;
-      const existingProduct = state.items.find((item) => item.id === product.id);
+      const existingProduct = state.items.find(item => item.id === product.id);
       if (existingProduct) {
         existingProduct.quantity += 1;
       } else {
         state.items.push({ ...product, quantity: 1 });
       }
     },
-    removeItem: (state, action) => {
-      const id = action.payload;
-      state.items = state.items.filter(item => item.id !== id);
-    },
-    updateQuantity: (state, action) => {
-      const { id, quantity } = action.payload;
-      const product = state.items.find((item) => item.id === id);
-      if (product) {
-        product.quantity = quantity;
-      }
+    removeFromCart: (state, action) => {
+      const productId = action.payload;
+      state.items = state.items.filter(item => item.id !== productId);
     },
     clearCart: (state) => {
-      state.items = []; // Empty the cart
+      state.items = [];
+    },
+    updateQuantity: (state, action) => {
+      const { productId, quantity } = action.payload;
+      const existingProduct = state.items.find(item => item.id === productId);
+      if (existingProduct) {
+        existingProduct.quantity = quantity;
+      }
     },
   },
 });
 
-// Make sure clearCart is correctly exported
-export const { addToCart, removeItem, updateQuantity, clearCart } = cartSlice.actions;
-
-export default cartSlice.reducer; // Export the reducer
+export const { addToCart, removeFromCart, clearCart, updateQuantity } = cartSlice.actions;
+export default cartSlice.reducer;

@@ -1,19 +1,38 @@
 "use client";
 
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux"; // Use Redux hooks
+import React, { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import productData from "../products";
 import { addToCart } from "../Store/Cartslice";
+import { auth } from "../../firebaseconfig"; // Import Firebase Auth
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
-const Dashboard = ({ userName }) => {
-  const dispatch = useDispatch(); // Initialize Redux dispatch
-  const cartItems = useSelector((state) => state.cart.items); // Get cart items from Redux
+const Dashboard = () => {
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items || []); // Access 'items' from the cart
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [userName, setUserName] = useState("");
   const router = useRouter();
 
   const categories = ["All", "Furniture", "Electronics", "Accessories"];
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Set the username if user is logged in
+        setUserName(user.displayName || user.email);
+      } else {
+        // Redirect to login if not authenticated
+        router.push("/Signin");
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup on component unmount
+  }, [router]);
 
   const filteredProducts = productData.filter((product) => {
     const matchesSearch = product.name
@@ -27,17 +46,33 @@ const Dashboard = ({ userName }) => {
 
   const handleAddToCart = (product) => {
     if (product.stock > 0) {
-      dispatch(addToCart(product)); // Dispatch addToCart action
+      dispatch(addToCart(product));
+      toast.success(`${product.name} added to cart!`, {
+        position: "top-right", // Toast appears at the top-right
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+      });
     } else {
-      alert("Out of stock!");
+      toast.error("Out of stock!", {
+        position: "top-right", // Toast appears at the top-right
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+      });
     }
   };
 
-  const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const totalCartItems = cartItems.reduce(
+    (total, item) => total + (item.quantity || 0),
+    0
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
-      {/* Top Navigation Bar */}
+      {/* Toast Container to render the toasts */}
+      <ToastContainer />
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-700">Welcome, {userName}!</h2>
         <div
@@ -70,7 +105,6 @@ const Dashboard = ({ userName }) => {
         Product Dashboard
       </h1>
 
-      {/* Search Bar */}
       <div className="flex justify-center mb-4">
         <input
           type="text"
@@ -81,7 +115,6 @@ const Dashboard = ({ userName }) => {
         />
       </div>
 
-      {/* Category Filter */}
       <div className="flex justify-center mb-8">
         <select
           value={selectedCategory}
@@ -96,7 +129,6 @@ const Dashboard = ({ userName }) => {
         </select>
       </div>
 
-      {/* Product List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
@@ -121,14 +153,27 @@ const Dashboard = ({ userName }) => {
                   Rating: ⭐ {product.rating}
                 </p>
                 <p className="text-sm text-gray-500 mb-4">
-                  Stock: <span className={product.stock > 0 ? "text-green-500" : "text-red-500"}>{product.stock > 0 ? `${product.stock} items` : "Out of stock"}</span>
+                  Stock:{" "}
+                  <span
+                    className={
+                      product.stock > 0 ? "text-green-500" : "text-red-500"
+                    }
+                  >
+                    {product.stock > 0
+                      ? `${product.stock} items`
+                      : "Out of stock"}
+                  </span>
                 </p>
                 <button
-                  className={`mt-4 w-full py-2 rounded-md ${product.stock > 0 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}`}
+                  className={`mt-4 w-full py-2 rounded-md ${
+                    product.stock > 0
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  }`}
                   onClick={() => handleAddToCart(product)}
                   disabled={product.stock === 0}
                 >
-                  {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                  {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
                 </button>
               </div>
             </div>

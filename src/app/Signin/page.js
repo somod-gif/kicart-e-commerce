@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import firebaseApp from "../../../public/firebaseconfig"; // Adjust the path as necessary
+import firebaseApp from "../../firebaseconfig"; // Adjust the path as necessary
 import Link from "next/link"; // Import Link from next/link
 
 const Signin = () => {
@@ -32,7 +32,7 @@ const Signin = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setLoading(false);
-      router.push("/dashboard"); // Redirect to the dashboard or desired page
+      router.push("/Dashboard"); // Redirect to the dashboard or desired page
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -44,7 +44,7 @@ const Signin = () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      router.push("/dashboard");
+      router.push("/Dashboard");
     } catch (err) {
       setError(err.message);
     }
@@ -117,7 +117,7 @@ const Signin = () => {
         <div className="mt-4 text-center text-gray-600">
           <p>
             Don't have an account?{" "}
-            <Link href="/register" className="text-indigo-600 hover:text-indigo-800">
+            <Link href="/Register" className="text-indigo-600 hover:text-indigo-800">
               Create one here
             </Link>
           </p>

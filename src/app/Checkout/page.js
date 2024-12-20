@@ -16,6 +16,10 @@ const Checkout = () => {
   const cartItems = useSelector((state) => state.cart.items);
   const [clientSecret, setClientSecret] = useState(null);
 
+  // Get stripe and elements hooks outside the submit handler
+  const stripe = useStripe();
+  const elements = useElements();
+
   useEffect(() => {
     // Calculate the total amount (in cents) for the order
     const amount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0) * 100;
@@ -39,13 +43,12 @@ const Checkout = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const stripe = await stripePromise;
-    const elements = useElements();
-    const cardElement = elements.getElement(CardElement);
 
     if (!stripe || !elements) {
       return;
     }
+
+    const cardElement = elements.getElement(CardElement);
 
     const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
@@ -90,11 +93,7 @@ const Checkout = () => {
             <div className="flex justify-between items-center mt-4 font-semibold text-gray-800">
               <p>Total</p>
               <p>
-                $
-                {cartItems.reduce(
-                  (total, item) => total + item.price * item.quantity,
-                  0
-                )}
+                ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0)}
               </p>
             </div>
 

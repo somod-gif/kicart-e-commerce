@@ -2,35 +2,60 @@
 
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateQuantity, removeItem, clearCart } from "../Store/Cartslice"
+import { removeFromCart, updateQuantity, clearCart } from "../Store/Cartslice";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";  // Import react-toastify
+import "react-toastify/dist/ReactToastify.css"; // Import the necessary CSS for Toastify
 
 const Cart = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const cartItems = useSelector((state) => state.cart.items);
+  const cartItems = useSelector((state) => state.cart.items || []); // Access 'items' from the cart
 
   const handleRemoveItem = (id) => {
-    dispatch(removeItem(id)); // Dispatch removeItem action
+    dispatch(removeFromCart(id));
+    toast.success("Item removed from cart!");  // Toast notification for remove action
   };
 
   const handleUpdateQuantity = (id, quantity) => {
-    dispatch(updateQuantity({ id, quantity })); // Dispatch updateQuantity action
+    if (quantity < 1) return; // Prevent quantity from being less than 1
+    dispatch(updateQuantity({ id, quantity }));
+    toast.info(`Quantity updated to ${quantity}`);  // Toast notification for quantity update
+  };
+
+  const handleIncrement = (id, quantity) => {
+    const newQuantity = quantity + 1;
+    dispatch(updateQuantity({ id, quantity: newQuantity }));
+    toast.info(`Quantity increased to ${newQuantity}`); // Toast for increment
+  };
+
+  const handleDecrement = (id, quantity) => {
+    if (quantity > 1) {
+      const newQuantity = quantity - 1;
+      dispatch(updateQuantity({ id, quantity: newQuantity }));
+      toast.info(`Quantity decreased to ${newQuantity}`); // Toast for decrement
+    }
   };
 
   const handleCheckout = () => {
-    router.push("/checkout"); // Navigate to the checkout page
+    router.push("/checkout");
   };
 
   const handleClearCart = () => {
-    dispatch(clearCart()); // Dispatch clearCart action to remove all items
+    dispatch(clearCart());
+    toast.warning("All items cleared from cart!");  // Toast notification for clear cart action
   };
+
+  // Calculate total price of the cart
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  ).toFixed(2); // To keep the price to two decimal places
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Your Cart</h1>
 
-      {/* Cart Items */}
       <div className="space-y-4">
         {cartItems.length > 0 ? (
           cartItems.map((item) => (
@@ -46,17 +71,31 @@ const Cart = () => {
                 <div className="flex items-center">
                   <button
                     className="px-2 py-1 bg-red-500 text-white rounded-md mr-2"
-                    onClick={() => handleRemoveItem(item.id)} // Handle item removal
+                    onClick={() => handleRemoveItem(item.id)}
                   >
                     Remove
                   </button>
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) => handleUpdateQuantity(item.id, parseInt(e.target.value))}
-                    className="w-16 text-center border border-gray-300 rounded-md"
-                    min="1"
-                  />
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleDecrement(item.id, item.quantity)}
+                      className="px-2 py-1 bg-gray-300 text-black rounded-md"
+                    >
+                      -
+                    </button>
+                    <p
+                      
+                      value={item.quantity}
+                      onChange={(e) => handleUpdateQuantity(item.id, parseInt(e.target.value))}
+                      className="w-16 text-center border border-gray-300 rounded-md"
+                      min="1"
+                    />
+                    <button
+                      onClick={() => handleIncrement(item.id, item.quantity)}
+                      className="px-2 py-1 bg-gray-300 text-black rounded-md"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -66,7 +105,6 @@ const Cart = () => {
         )}
       </div>
 
-      {/* Clear All Items Button */}
       {cartItems.length > 0 && (
         <div className="mt-6 flex justify-center space-x-4">
           <button
@@ -81,6 +119,13 @@ const Cart = () => {
           >
             Proceed to Checkout
           </button>
+        </div>
+      )}
+
+      {/* Display total price */}
+      {cartItems.length > 0 && (
+        <div className="mt-4 text-center">
+          <p className="text-xl font-semibold text-gray-800">Total Price: ${totalPrice}</p>
         </div>
       )}
     </div>

@@ -8,7 +8,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import firebaseApp from "../../../public/firebaseconfig"; // Adjust the path as necessary
+import firebaseApp from "../../firebaseconfig"; // Adjust the path as necessary
 import Link from "next/link"; // Import Link from next/link
 
 const Register = () => {
@@ -47,7 +47,7 @@ const Register = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       setLoading(false);
-      router.push("/dashboard"); // Redirect to dashboard or desired page
+      router.push("/Dashboard"); // Redirect to dashboard or desired page
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -59,7 +59,7 @@ const Register = () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      router.push("/dashboard");
+      router.push("/Dashboard");
     } catch (err) {
       setError(err.message);
     }

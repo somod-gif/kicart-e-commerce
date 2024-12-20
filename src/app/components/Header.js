@@ -1,88 +1,77 @@
 "use client";
+
 import { useState } from "react";
-import Link from "next/link"; // Import Link from Next.js
+import { useSelector } from "react-redux";
+import Link from "next/link";
+import { FaShoppingCart, FaHeart, FaUser } from "react-icons/fa";
 
 const Header = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const cartCount = useSelector((state) => state.cart?.items?.length || 0);
+  const favouriteCount = useSelector((state) => state.favourites?.favourites?.length || 0);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const toggleAccountDropdown = () => {
-    setIsAccountDropdownOpen(!isAccountDropdownOpen);
-  };
+  // State to toggle the dropdown menu
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   return (
-    <header className="bg-gray-800 text-white py-4">
+    <header className="bg-gray-800 text-white py-4 relative">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <div className="text-2xl font-bold">KitCart</div>
 
-        {/* Desktop Navigation */}
+        {/* Navigation Links */}
         <nav className="hidden md:flex justify-center space-x-6 flex-1">
           <Link href="/" className="hover:text-gray-400">Home</Link>
-          {/* <Link href="/Shop" className="hover:text-gray-400">Shop</Link> */}
-          {/* <Link href="/Cart" className="hover:text-gray-400">Cart</Link> */}
           <Link href="/Contact" className="hover:text-gray-400">Contact Us</Link>
           <Link href="/About" className="hover:text-gray-400">About Us</Link>
         </nav>
 
-        {/* Account (Desktop) */}
-        <div className="relative ml-auto hidden md:block">
-          <button onClick={toggleAccountDropdown} className="flex items-center space-x-2 hover:text-gray-400">
-            <span>Account</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {isAccountDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-lg">
-              <Link href="/Register" className="block px-4 py-2 hover:bg-gray-100">Register</Link>
-              <Link href="/Signin" className="block px-4 py-2 hover:bg-gray-100">Sign In</Link>
-              <Link href="/Dashboard" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
-            </div>
-          )}
-        </div>
+        {/* Icons and Account Section */}
+        <div className="flex items-center space-x-6">
+          {/* Cart Icon */}
+          <div className="relative">
+            <Link href="/Cart">
+              <FaShoppingCart className="w-6 h-6 text-white hover:text-yellow-500 transition duration-300" />
+            </Link>
+            {cartCount > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </div>
 
-        {/* Mobile Menu Icon */}
-        <button onClick={toggleMobileMenu} className="md:hidden hover:text-gray-400">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+          {/* Favourites Icon */}
+          <div className="relative">
+            <Link href="/Favourites">
+              <FaHeart className="w-6 h-6 text-white hover:text-pink-500 transition duration-300" />
+            </Link>
+            {favouriteCount > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                {favouriteCount}
+              </span>
+            )}
+          </div>
+
+          {/* Account Icon with Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setAccountMenuOpen(!accountMenuOpen)}
+              className="flex items-center"
+            >
+              <FaUser className="w-6 h-6 text-white hover:text-blue-500 transition duration-300" />
+            </button>
+            {accountMenuOpen && (
+              <div className="absolute right-0 mt-2 bg-white text-gray-800 rounded-lg shadow-lg py-2 w-40">
+                <Link href="/Register" className="block px-4 py-2 hover:bg-gray-200">
+                  Register
+                </Link>
+                <Link href="/Signin" className="block px-4 py-2 hover:bg-gray-200">
+                  Login
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-gray-800 text-white py-4">
-          <nav className="space-y-2 px-4">
-            <Link href="/" className="block hover:text-gray-400">Home</Link>
-            {/* <Link href="/Shop" className="block hover:text-gray-400">Shop</Link> */}
-            <Link href="/About" className="block hover:text-gray-400">About Us</Link>
-            {/* <Link href="/Cart" className="block hover:text-gray-400">Cart</Link> */}
-            <Link href="/Contact" className="block hover:text-gray-400">Contact Us</Link>
-
-            {/* Account in Mobile Menu */}
-            <div className="relative">
-              <button onClick={toggleAccountDropdown} className="w-full text-left hover:text-gray-400 flex items-center space-x-2">
-                <span>Account</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {isAccountDropdownOpen && (
-                <div className="mt-2 w-full bg-white text-gray-800 rounded-lg shadow-lg">
-                  <Link href="/Register" className="block px-4 py-2 hover:bg-gray-100">Register</Link>
-                  <Link href="/Signin" className="block px-4 py-2 hover:bg-gray-100">Sign In</Link>
-                  <Link href="/Dashboard" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
-                </div>
-              )}
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 };
