@@ -9,7 +9,9 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import firebaseApp from "../../firebaseconfig"; // Adjust the path as necessary
-import Link from "next/link"; // Import Link from next/link
+import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +22,6 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
@@ -32,13 +33,12 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     const { email, password, confirmPassword } = formData;
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match!");
       setLoading(false);
       return;
     }
@@ -46,10 +46,11 @@ const Register = () => {
     const auth = getAuth(firebaseApp);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      toast.success("Account created successfully!");
       setLoading(false);
-      router.push("/Dashboard"); // Redirect to dashboard or desired page
+      router.push("/Dashboard");
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
       setLoading(false);
     }
   };
@@ -59,16 +60,17 @@ const Register = () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
+      toast.success("Signed in with Google!");
       router.push("/Dashboard");
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <ToastContainer /> {/* Toast notification container */}
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src="/path/to/your/logo.png" alt="Logo" className="h-12 w-auto" />
         </div>
@@ -76,7 +78,6 @@ const Register = () => {
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
           Create an Account
         </h1>
-        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
         <form onSubmit={handleRegister}>
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-medium">
@@ -92,10 +93,7 @@ const Register = () => {
             />
           </div>
           <div className="mb-4">
-            <label
-              htmlFor="username"
-              className="block text-gray-700 font-medium"
-            >
+            <label htmlFor="username" className="block text-gray-700 font-medium">
               Username
             </label>
             <input
@@ -121,10 +119,7 @@ const Register = () => {
             />
           </div>
           <div className="mb-4">
-            <label
-              htmlFor="phone"
-              className="block text-gray-700 font-medium"
-            >
+            <label htmlFor="phone" className="block text-gray-700 font-medium">
               Phone Number
             </label>
             <input
