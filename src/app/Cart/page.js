@@ -38,7 +38,7 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    router.push("/checkout");
+    router.push("/");
   };
 
   const handleClearCart = () => {
