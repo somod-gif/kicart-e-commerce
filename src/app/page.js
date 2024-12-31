@@ -9,6 +9,7 @@ import products from "./products";
 import { FaHeart, FaShoppingCart } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../app/styles/globals.css"
 
 const Home = () => {
   const dispatch = useDispatch();

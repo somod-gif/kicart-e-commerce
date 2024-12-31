@@ -1,6 +1,7 @@
-import { Providers } from "./Providers";
-import { PersistGate } from 'redux-persist/integration/react'; // Import PersistGate
-import { persistor } from './Store/store'; // Import persistor from the store
+import { Providers } from "./Providers";  // Keep this for providing the store
+import Header from '../app/components/Header';  // Ensure proper imports for Header and Footer
+import Footer from '../app/components/Footer';
+import "../app/styles/globals.css"
 
 export const metadata = {
   title: "KitCart | Your E-commerce Hub",
@@ -12,14 +13,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <Providers>
-          <PersistGate loading={null} persistor={persistor}>
-            <Header />
-            <main>{children}</main> {/* Dynamic content for each page */}
-            <Footer />
-          </PersistGate>
+          <Header />
+          <main>{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>
   );
 }
-

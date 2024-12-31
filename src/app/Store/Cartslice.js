@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 // Initial state for the cart
 const initialState = {
-  items: [], // Wrap the cart items in 'items' field
+  items: [],  // Wrap the cart items in 'items' field
 };
 
 // Cart slice definition
